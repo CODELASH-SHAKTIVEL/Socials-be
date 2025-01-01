@@ -1,17 +1,17 @@
-import dotenv from 'dotenv';
 import express from 'express';
-import ConnectDB from './db/index.js';
 const app = express();
 
-dotenv.config({
-  path: './env',
-});
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    Credential: true,
+  }),
+);
 
-app.listen(process.env.PORT, async () => {
-  try {
-    await ConnectDB();
-    console.log(`Example app listening on port ${process.env.PORT}`);
-  } catch (error) {
-    console.error(error);
-  }
-});
+app.use(express.urlencoded({ extended: true, limit: '20kb' })); // FOR PARAMS
+app.use(express.json({ limit: '20kb' })); //FOR BODY JSON
+app.use(express.static('public')); // STATIC FILE SERVER
+app.use(cookieParser()); // TO SET OR RESET COOKIE ON SERVER ONLY
+
+export { app };
