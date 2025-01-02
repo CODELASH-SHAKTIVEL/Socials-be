@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import jwt from 'jwt';
+import bcrypt from 'bcrypt';
 const UserSchema = new mongoose.Schema(
   {
     username: {
@@ -47,7 +49,53 @@ const UserSchema = new mongoose.Schema(
   },
 );
 
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = bcrypt.hash(this.password, process.env.Salt);
+  next();
+});
+
+UserSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+UserSchema.methods.generateAccessToken = function () {
+  return jwt.sign(
+    {
+      _id: this._id,
+      email: this.email,
+      username: this.username,
+      fullName: this.fullName,
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+    },
+  );
+};
+UserSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    {
+      _id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+    },
+  );
+};
+
 export const User = new mongoose.model('User', UserSchema);
 
 // mongoDB convertes the User to users [ lowercase and s for plural]
 // Watch history saves the id of the video as will go on watching the video
+// methods is not middleware and pass the password bearer token to the method and this keyword as the access to the real password
+
+// Summary:
+// Methods:
+// Are explicit and run on individual documents when called.
+// Are used to add custom functionality to documents (e.g., checks, computations, utility functions).
+
+// Middleware (Pre/Post Hooks):
+// Run automatically during specific lifecycle events of a document or query.
+// Are used to automate lifecycle-related tasks (e.g., logging, validation, data manipulation).
