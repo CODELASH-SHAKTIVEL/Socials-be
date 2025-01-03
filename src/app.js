@@ -16,4 +16,8 @@ app.use(express.json({ limit: '20kb' })); //FOR BODY JSON
 app.use(express.static('public')); // STATIC FILE SERVER
 app.use(cookieParser()); // TO SET OR RESET COOKIE ON SERVER ONLY
 
+// Router configuration
+import userRouter from './Routes/user.routers.js'
+app.use("/api/v1/users" , userRouter)
+
 export { app };
