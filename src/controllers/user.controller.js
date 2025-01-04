@@ -21,21 +21,21 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // File uploads
-  const avatarLocalPath = req.files?.avatar?.[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
-
+  const avatarLocalPath = req.files?.avatar[0]?.path;
+  const coverImageLocalPath = req.files?.coverImage[0]?.path;
   if (!avatarLocalPath) {
     throw new ApiError(400, 'Avatar file is required');
   }
-
-  const [avatar, coverImage] = await Promise.all([
-    UploadFileOnCloudinary(avatarLocalPath),
-    coverImageLocalPath ? UploadFileOnCloudinary(coverImageLocalPath) : null,
-  ]);
-
-  if (!avatar?.url) {
-    throw new ApiError(500, 'Failed to upload avatar');
+  const avatar = await UploadFileOnCloudinary(avatarLocalPath);
+  const coverImage = await UploadFileOnCloudinary(coverImageLocalPath);
+  if (!avatar) {
+    throw new ApiError(400, 'Avatar file is required');
   }
+
+  // Testing Purposes
+  console.log('Uploaded files:', req.files);
+  console.log(avatar.url, coverImage.url);
+  console.log('Uploading checkpoint');
 
   // Create user
   const user = await User.create({
