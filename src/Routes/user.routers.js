@@ -1,4 +1,4 @@
-import {registeruser} from '../controllers/user.controller.js';
+import {registerUser} from '../controllers/user.controller.js';
 import { Router } from 'express';
 import { upload } from '../middlewares/multer.middleware.js';
 
@@ -14,6 +14,6 @@ router.route('/register').post(
         maxCount: 1
     }
 ]),
-registeruser)
+registerUser)
 
 export default router
