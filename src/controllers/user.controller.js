@@ -175,4 +175,104 @@ const RefreshTokenResponse = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, loginUser, logOutUser, RefreshTokenResponse };
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { oldpassword, newpassword } = req.body;
+  if (!(oldpassword && newpassword)) {
+    throw new ApiError(401, 'Oldpassword & newpassword is required');
+  }
+  const user = await User.findById(req.user?._id);
+  if (!user) {
+    throw new ApiError(401, 'User not found');
+  }
+  const isValidPassword = await user.isPasswordCorrect(oldpassword);
+  if (!isValidPassword) {
+    throw new ApiError(401, 'Invalid password');
+  }
+  await User.findOneAndUpdate(
+    req.user,
+    {
+      $set: {
+        password: newpassword,
+      },
+    },
+    { new: true },
+  );
+  res.json(new ApiResponse(200, 'Password changed successfully'));
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  // use middleware verifyJwt where I can have access to user._id
+  const user = await User.findById(req.user?._id);
+  res.json(new ApiResponse(200, user));
+});
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { newfullName, newemail } = req.body;
+  if (!(newfullName && newemail)) {
+    throw new ApiError(401, 'Oldpassword & newpassword is required');
+  }
+  const user = await User.findById(req.user?._id);
+  if (!user) {
+    throw new ApiError(401, 'User not found');
+  }
+  const UpdateDetailsUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        fullName: newfullName,
+        email: newemail,
+      },
+    },
+    { new: true },
+  );
+  res.json(new ApiResponse(200, UpdateDetailsUser, 'Account details updated successfully'));
+});
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  // use middlware of multer for req.file where to upload the single avatar
+  const avatarlocalPath = req.file?.path;
+  if (!avatarlocalPath) {
+    throw new ApiError(401, 'Avatar Path is not found');
+  }
+  const avatar = await UploadFileOnCloudinary(avatarlocalPath);
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        avatar: avatar?.url,
+      },
+    },
+    { new: true },
+  );
+  res.status(200).json(new ApiResponse(200, user.avatar, 'successfully updated Avatar'));
+});
+
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+  const CoverlocalPath = req.file?.path;
+  if (!CoverlocalPath) {
+    throw new ApiError(401, 'CoverImage Path is not found');
+  }
+  const coverImage = await UploadFileOnCloudinary(CoverlocalPath);
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        coverImage: coverImage?.url,
+      },
+    },
+    { new: true },
+  );
+  res.status(200).json(new ApiResponse(200, user.coverImage, 'successfully updated CoverImage'));
+});
+
+export {
+  registerUser,
+  loginUser,
+  logOutUser,
+  RefreshTokenResponse,
+  changeCurrentPassword,
+  getCurrentUser,
+  updateAccountDetails,
+  updateUserAvatar,
+  updateUserCoverImage,
+};
