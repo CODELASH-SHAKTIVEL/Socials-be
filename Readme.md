@@ -138,6 +138,6 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## **Contact**
 For any queries or suggestions, please reach out to:
-- **Email**: your-email@example.com
-- **GitHub**: [your-username](https://github.com/your-username)
+- **Email**: shaktivel.elangovan2004gmail.com
+- **GitHub**: [CODELASH-SHAKTIVEL](https://github.com/CODELASH-SHAKTIVEL)
 
